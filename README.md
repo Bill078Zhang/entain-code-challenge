@@ -122,19 +122,19 @@ Below is a quick guide on different calls you can make to the list-sports endpoi
 1. Only show races that have a specific meetingID
 
 ```bash
-curl -X "POST" "http://localhost:8000/v1/list-sports" \
+curl -X "POST" "http://localhost:8000/v1/list-races" \
      -H 'Content-Type: application/json' \
      -d $'{
-  "filter": {"meetingID":["1", "22"]}
+  "filter": {"meetingID":["1", "2"]}
 }'
 ```
 
 2. Only show visible races
 
 ```bash
-curl -X "POST" "http://localhost:8000/v1/list-sports" \
+curl -X "POST" "http://localhost:8000/v1/list-races" \
      -H 'Content-Type: application/json' \
      -d $'{
-  "filter": {"onlyVisible":true}
+  "filter": {"visible":true}
 }'
 ```

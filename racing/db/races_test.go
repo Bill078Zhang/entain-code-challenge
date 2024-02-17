@@ -29,8 +29,9 @@ func TestRacesRepo_FilteredByMeetingIds(t *testing.T) {
 func TestRacesRepo_FilterByVisibility(t *testing.T) {
 	repo := createTestRepo(t)
 
+	visible := true
 	filter := &racing.ListRacesRequestFilter{
-		VisibleOnly: true,
+		Visible: &visible,
 	}
 	races, err := repo.List(filter)
 
