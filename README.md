@@ -138,3 +138,17 @@ curl -X "POST" "http://localhost:8000/v1/list-races" \
   "filter": {"visible":true}
 }'
 ```
+
+3. Display races sorted by a specified field in the requested direction
+
+```bash
+curl -X "POST" "http://localhost:8000/v1/list-races" \
+     -H 'Content-Type: application/json' \
+     -d $'{
+  "filter": {"visible":true},
+   "order": {
+        "field": "advertised_start_time",
+        "direction": "DESC"
+        }
+}'
+```
