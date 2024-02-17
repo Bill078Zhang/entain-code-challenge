@@ -2,12 +2,14 @@ package db
 
 import (
 	"database/sql"
-	"git.neds.sh/matty/entain/racing/proto/racing"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/mattn/go-sqlite3"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/golang/protobuf/ptypes"
+	_ "github.com/mattn/go-sqlite3"
+
+	"git.neds.sh/matty/entain/racing/proto/racing"
 )
 
 // ValidColumns defines a slice of valid column names for ordering.
