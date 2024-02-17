@@ -114,3 +114,27 @@ go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway git
 - [Google API Design](https://cloud.google.com/apis/design)
 - [Go Modules](https://golang.org/ref/mod)
 - [Ubers Go Style Guide](https://github.com/uber-go/guide/blob/2910ce2e11d0e0cba2cece2c60ae45e3a984ffe5/style.md)
+
+
+### How to Call
+Below is a quick guide on different calls you can make to the list-sports endpoints.
+
+1. Only show races that have a specific meetingID
+
+```bash
+curl -X "POST" "http://localhost:8000/v1/list-sports" \
+     -H 'Content-Type: application/json' \
+     -d $'{
+  "filter": {"meetingID":["1", "22"]}
+}'
+```
+
+2. Only show visible races
+
+```bash
+curl -X "POST" "http://localhost:8000/v1/list-sports" \
+     -H 'Content-Type: application/json' \
+     -d $'{
+  "filter": {"onlyVisible":true}
+}'
+```
