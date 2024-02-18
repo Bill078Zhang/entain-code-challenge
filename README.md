@@ -117,8 +117,9 @@ go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway git
 
 
 ### How to Call
-Below is a quick guide on different calls you can make to the list-races endpoints.
+Below is a quick guide on different calls you can make to the grpc endpoints.
 
+#### list-races
 1. Only show races that have a specific meetingID
 
 ```bash
@@ -158,4 +159,59 @@ curl -X "POST" "http://localhost:8000/v1/list-races" \
 ```bash
 curl -X "GET" "http://localhost:8000/v1/get-race/{35}" \
      -H 'Content-Type: application/json'
+```
+
+#### list-events
+1. Only show events that include a specific name
+
+```bash
+curl -X "POST" "http://localhost:8000/v1/list-events" \
+     -H 'Content-Type: application/json' \
+     -d $'{
+  "filter": {"name":"Kansas elephants"}
+}'
+```
+
+2. Only show specific type events
+
+```bash
+curl -X "POST" "http://localhost:8000/v1/list-events" \
+     -H 'Content-Type: application/json' \
+     -d $'{
+  "filter": {"type":"Hatity"}
+}'
+```
+
+3. Only show events in a specific location
+
+```bash
+curl -X "POST" "http://localhost:8000/v1/list-events" \
+     -H 'Content-Type: application/json' \
+     -d $'{
+  "filter": {"location":"Rebecamouth"}
+}'
+```
+
+4. Only show visible events
+
+```bash
+curl -X "POST" "http://localhost:8000/v1/list-events" \
+     -H 'Content-Type: application/json' \
+     -d $'{
+  "filter": {"visible":true}
+}'
+```
+
+5. Display events sorted by a specified field in the requested direction
+
+```bash
+curl -X "POST" "http://localhost:8000/v1/list-events" \
+     -H 'Content-Type: application/json' \
+     -d $'{
+  "filter": {"visible":true},
+   "order": {
+        "field": "advertised_start_time",
+        "direction": "DESC"
+        }
+}'
 ```
