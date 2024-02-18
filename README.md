@@ -152,3 +152,10 @@ curl -X "POST" "http://localhost:8000/v1/list-races" \
         }
 }'
 ```
+
+4. Fetch a single race by Id
+
+```bash
+curl -X "GET" "http://localhost:8000/v1/get-race/{35}" \
+     -H 'Content-Type: application/json'
+```

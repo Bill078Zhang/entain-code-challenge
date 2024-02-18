@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"strings"
 	"sync"
 	"time"
@@ -22,6 +23,9 @@ type RacesRepo interface {
 
 	// List will return a list of races.
 	List(filter *racing.ListRacesRequestFilter, order *racing.ListRacesRequestOrderParam) ([]*racing.Race, error)
+
+	// GetById will return a single race.
+	GetById(id int64) (*racing.Race, error)
 }
 
 type racesRepo struct {
@@ -55,7 +59,7 @@ func (r *racesRepo) List(filter *racing.ListRacesRequestFilter, order *racing.Li
 
 	query = getRaceQueries()[racesList]
 
-	query, args = r.applyFilter(query, filter)
+	query, args = r.applyListRacesFilter(query, filter)
 
 	query = r.applyOrder(query, order)
 
@@ -67,7 +71,37 @@ func (r *racesRepo) List(filter *racing.ListRacesRequestFilter, order *racing.Li
 	return r.scanRaces(rows)
 }
 
-func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFilter) (string, []interface{}) {
+func (r *racesRepo) GetById(id int64) (*racing.Race, error) {
+	var (
+		err   error
+		query string
+		args  []interface{}
+	)
+
+	query = getRaceQueries()[racesList]
+
+	filter := &racing.GetRaceRequestFilter{Id: &id}
+
+	query, args = r.applyGetRaceFilter(query, filter)
+
+	rows, err := r.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	races, err := r.scanRaces(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(races) == 0 {
+		return nil, errors.New("race does not exist")
+	}
+
+	return races[0], nil
+}
+
+func (r *racesRepo) applyListRacesFilter(query string, filter *racing.ListRacesRequestFilter) (string, []interface{}) {
 	var (
 		clauses []string
 		args    []interface{}
@@ -91,6 +125,28 @@ func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFil
 	}
 	
 	if len(clauses) != 0 {
+		query += " WHERE " + strings.Join(clauses, " AND ")
+	}
+
+	return query, args
+}
+
+func (r *racesRepo) applyGetRaceFilter(query string, filter *racing.GetRaceRequestFilter) (string, []interface{}) {
+	var (
+		clauses []string
+		args    []interface{}
+	)
+
+	if filter == nil {
+		return query, args
+	}
+
+	if filter.Id != nil {
+		clauses = append(clauses, "id = ?")
+		args = append(args, filter.Id)
+	}
+
+	if len(clauses) > 0 {
 		query += " WHERE " + strings.Join(clauses, " AND ")
 	}
 

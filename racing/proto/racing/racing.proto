@@ -8,10 +8,13 @@ import "google/protobuf/timestamp.proto";
 service Racing {
   // ListRaces will return a collection of all races.
   rpc ListRaces(ListRacesRequest) returns (ListRacesResponse) {}
+  // GetRace will return a single race by a provided Id.
+  rpc GetRace(GetRaceRequest) returns (Race) {}
 }
 
 /* Requests/Responses */
 
+// List Races
 message ListRacesRequest {
   ListRacesRequestFilter filter = 1;
   ListRacesRequestOrderParam order = 2;
@@ -33,6 +36,16 @@ message ListRacesRequestFilter {
 message ListRacesRequestOrderParam {
   optional string field = 1;
   optional string direction = 2;
+}
+
+// Get Race
+message GetRaceRequest {
+  int64 id = 1;
+}
+
+// Filter for getting a single race.
+message GetRaceRequestFilter {
+ optional int64 id = 1;
 }
 
 /* Resources */
