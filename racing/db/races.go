@@ -157,6 +157,12 @@ func (m *racesRepo) scanRaces(
 
 		race.AdvertisedStartTime = ts
 
+		// Calculates the status field value based on a race's advertisedStartTime.
+		race.Status = "OPEN"
+		if ptypes.TimestampNow().Seconds > ts.Seconds {
+			race.Status = "CLOSED"
+		}
+
 		races = append(races, &race)
 	}
 

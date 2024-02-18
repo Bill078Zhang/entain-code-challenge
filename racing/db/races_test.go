@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"git.neds.sh/matty/entain/racing/proto/racing"
@@ -114,6 +115,30 @@ func TestRacesRepo_Sort(t *testing.T) {
 					}
 				}
 			}
+		}
+	}
+}
+
+// TestRacesRepo_StatusField tests the status field calculated by the advertised start time.
+func TestRacesRepo_StatusField(t *testing.T) {
+	repo := createTestRepo(t)
+
+	filter := &racing.ListRacesRequestFilter{}
+	order := &racing.ListRacesRequestOrderParam{}
+	races, err := repo.List(filter, order)
+
+	assert.NoError(t, err)
+	assert.Equalf(t, 100, len(races), "There should be a total of 100 races in DB.")
+
+	// Validating race statuses based on advertised start time
+	for _, race := range races {
+		switch {
+		case race.Status == "CLOSED":
+			assert.Truef(t, time.Now().Unix() > race.AdvertisedStartTime.Seconds, "Race %d should not be CLOSED.", race.Id)
+		case race.Status == "OPEN":
+			assert.Truef(t, time.Now().Unix() <= race.AdvertisedStartTime.Seconds, "Race %d should not be OPEN.", race.Id)
+		default:
+			assert.Failf(t, "Status field must only contain OPEN or CLOSED.", race.Status)
 		}
 	}
 }
