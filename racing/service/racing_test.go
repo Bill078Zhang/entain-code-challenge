@@ -3,6 +3,7 @@ package service
 import (
 	"database/sql"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -123,6 +124,27 @@ func TestRacingService_SortByDefault(t *testing.T) {
 	}
 }
 
+func TestRacingService_StatusField(t *testing.T) {
+	racingService := createService(t)
+
+	listRacesRequest := &racing.ListRacesRequest{Filter: &racing.ListRacesRequestFilter{}}
+	listRacesResponse, err := racingService.ListRaces(nil, listRacesRequest)
+
+	assert.NoError(t, err)
+	assert.Equalf(t, 100, len(listRacesResponse.Races), "There should be a total of 100 races in DB.")
+
+	// Validating race statuses based on advertised start time
+	for _, race := range listRacesResponse.Races {
+		switch {
+		case race.Status == "CLOSED":
+			assert.Truef(t, time.Now().Unix() > race.AdvertisedStartTime.Seconds, "Race %d should not be CLOSED.", race.Id)
+		case race.Status == "OPEN":
+			assert.Truef(t, time.Now().Unix() <= race.AdvertisedStartTime.Seconds, "Race %d should not be OPEN.", race.Id)
+		default:
+			assert.Failf(t, "Status field must only contain OPEN or CLOSED.", race.Status)
+		}
+	}
+}
 
 func createService(t *testing.T) Racing {
 	racingDB, err := sql.Open("sqlite3", ":memory:")
