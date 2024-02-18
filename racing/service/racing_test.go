@@ -28,7 +28,7 @@ func TestRacingService_FilteredByMeetingIds(t *testing.T) {
 	}
 }
 
-func TestRacingService_FilteredByVisibility_List(t *testing.T) {
+func TestRacingService_FilteredByVisibility(t *testing.T) {
 	racingService := createService(t)
 
 	filter := &racing.ListRacesRequestFilter{
@@ -44,7 +44,7 @@ func TestRacingService_FilteredByVisibility_List(t *testing.T) {
 	}
 }
 
-func TestRacingService_All_List(t *testing.T) {
+func TestRacingService_GetAllRaces(t *testing.T) {
 	racingService := createService(t)
 
 	request := &racing.ListRacesRequest{Filter: &racing.ListRacesRequestFilter{}}
