@@ -117,7 +117,7 @@ go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway git
 
 
 ### How to Call
-Below is a quick guide on different calls you can make to the list-sports endpoints.
+Below is a quick guide on different calls you can make to the list-races endpoints.
 
 1. Only show races that have a specific meetingID
 

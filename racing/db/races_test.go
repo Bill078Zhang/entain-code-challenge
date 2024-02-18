@@ -53,6 +53,11 @@ func TestRacesRepo_ListAll(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equalf(t, 100, len(races), "Expected 100 races in the result")
+
+	// Check if races are sorted by default field (advertised_start_time)
+	for _, race := range races {
+		assert.Truef(t, race.AdvertisedStartTime.Nanos >= race.AdvertisedStartTime.Nanos, "Results are not sorted by advertised_start_time")
+	}
 }
 
 // TestRacesRepo_Sort tests sorting races by different fields and directions.
