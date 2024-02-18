@@ -143,6 +143,27 @@ func TestRacesRepo_StatusField(t *testing.T) {
 	}
 }
 
+// TestRacesRepo_GetById tests the behavior of the GetById method when provided with a valid ID.
+func TestRacesRepo_GetById(t *testing.T) {
+    repo := createTestRepo(t)
+
+    race, err := repo.GetById(35)
+
+    assert.NoError(t, err, "No error should occur.")
+    assert.NotNil(t, race, "Race should exist.")
+    assert.EqualValuesf(t, 35, race.Id, "Race with ID 35 should exist.")
+}
+
+// TestRacesRepo_GetByInvalidId tests the behavior of the GetById method when provided with an invalid ID.
+func TestRacesRepo_GetByInvalidId(t *testing.T) {
+    repo := createTestRepo(t)
+
+    race, err := repo.GetById(-1)
+
+    assert.Error(t, err)
+    assert.Nil(t, race, "Race should not exist.")
+}
+
 // createTestRepo initializes a test repository for races.
 func createTestRepo(t *testing.T) RacesRepo {
 	racingDB, err := sql.Open("sqlite3", ":memory:")

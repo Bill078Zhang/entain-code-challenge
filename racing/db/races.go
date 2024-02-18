@@ -95,7 +95,7 @@ func (r *racesRepo) GetById(id int64) (*racing.Race, error) {
 	}
 
 	if len(races) == 0 {
-		return nil, errors.New("race does not exist")
+		return nil, errors.New("Race does not exist.")
 	}
 
 	return races[0], nil

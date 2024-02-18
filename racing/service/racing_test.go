@@ -146,6 +146,27 @@ func TestRacingService_StatusField(t *testing.T) {
 	}
 }
 
+func TestRacingService_GetRace(t *testing.T) {
+	racingService := createService(t)
+
+	getRaceRequest := &racing.GetRaceRequest{Id: 35}
+	race, err := racingService.GetRace(nil, getRaceRequest)
+
+    assert.NoError(t, err, "No error should occur.")
+    assert.NotNil(t, race, "Race should exist.")
+    assert.EqualValuesf(t, 35, race.Id, "Race with ID 35 should exist.")
+}
+
+func TestRacingService_GetRaceByInvalidId(t *testing.T) {
+	racingService := createService(t)
+
+	getRaceRequest := &racing.GetRaceRequest{Id: -1}
+	race, err := racingService.GetRace(nil, getRaceRequest)
+
+    assert.Error(t, err)
+    assert.Nil(t, race, "Race should not exist.")
+}
+
 func createService(t *testing.T) Racing {
 	racingDB, err := sql.Open("sqlite3", ":memory:")
 	assert.NoError(t, err)
