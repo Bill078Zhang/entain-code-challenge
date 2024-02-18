@@ -12,13 +12,16 @@ import (
 	"git.neds.sh/matty/entain/racing/proto/racing"
 )
 
+// ValidColumns defines a slice of valid column names for ordering.
+var ValidColumns = []string{"id", "meeting_id", "name", "advertised_start_time"}
+
 // RacesRepo provides repository access to races.
 type RacesRepo interface {
 	// Init will initialise our races repository.
 	Init() error
 
 	// List will return a list of races.
-	List(filter *racing.ListRacesRequestFilter) ([]*racing.Race, error)
+	List(filter *racing.ListRacesRequestFilter, order *racing.ListRacesRequestOrderParam) ([]*racing.Race, error)
 }
 
 type racesRepo struct {
@@ -43,7 +46,7 @@ func (r *racesRepo) Init() error {
 	return err
 }
 
-func (r *racesRepo) List(filter *racing.ListRacesRequestFilter) ([]*racing.Race, error) {
+func (r *racesRepo) List(filter *racing.ListRacesRequestFilter, order *racing.ListRacesRequestOrderParam) ([]*racing.Race, error) {
 	var (
 		err   error
 		query string
@@ -53,6 +56,8 @@ func (r *racesRepo) List(filter *racing.ListRacesRequestFilter) ([]*racing.Race,
 	query = getRaceQueries()[racesList]
 
 	query, args = r.applyFilter(query, filter)
+
+	query = r.applyOrder(query, order)
 
 	rows, err := r.db.Query(query, args...)
 	if err != nil {
@@ -90,6 +95,42 @@ func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFil
 	}
 
 	return query, args
+}
+
+// applyOrder applies ordering to the query based on the user-provided field and direction.
+func (r *racesRepo) applyOrder(query string, order *racing.ListRacesRequestOrderParam) string {
+	// Return immediately if no order is specified
+	if order == nil {
+		return query
+	}
+
+	// Default order by if no field has been provided
+	if order.Field == nil {
+		query += " ORDER BY advertised_start_time"
+	} else {
+		// Validate user-provided field
+		if !isValidColumn(*order.Field) {
+			return query
+		}
+		query += " ORDER BY " + *order.Field
+	}
+
+	// Append direction if provided and valid
+	if order.Direction != nil && (strings.EqualFold(*order.Direction, "ASC") || strings.EqualFold(*order.Direction, "DESC")) {
+		query += " " + strings.ToUpper(*order.Direction)
+	}	
+
+	return query
+}
+
+// isValidColumn checks if the provided column name is valid for ordering.
+func isValidColumn(column string) bool {
+	for _, validColumn := range ValidColumns {
+		if strings.EqualFold(column, validColumn) {
+			return true
+		}
+	}
+	return false
 }
 
 func (m *racesRepo) scanRaces(

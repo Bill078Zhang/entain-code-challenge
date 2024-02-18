@@ -117,7 +117,7 @@ go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway git
 
 
 ### How to Call
-Below is a quick guide on different calls you can make to the list-sports endpoints.
+Below is a quick guide on different calls you can make to the list-races endpoints.
 
 1. Only show races that have a specific meetingID
 
@@ -136,5 +136,19 @@ curl -X "POST" "http://localhost:8000/v1/list-races" \
      -H 'Content-Type: application/json' \
      -d $'{
   "filter": {"visible":true}
+}'
+```
+
+3. Display races sorted by a specified field in the requested direction
+
+```bash
+curl -X "POST" "http://localhost:8000/v1/list-races" \
+     -H 'Content-Type: application/json' \
+     -d $'{
+  "filter": {"visible":true},
+   "order": {
+        "field": "advertised_start_time",
+        "direction": "DESC"
+        }
 }'
 ```

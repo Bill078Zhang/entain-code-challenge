@@ -54,6 +54,76 @@ func TestRacingService_GetAllRaces(t *testing.T) {
 	assert.Equalf(t, 100, len(response.Races), "There should be a total of 100 races in DB.")
 }
 
+func TestRacingService_SortFields(t *testing.T) {
+	racingService := createService(t)
+	sortFields := []string{"id", "meeting_id", "name", "advertised_start_time"}
+
+	// Iterate over sort fields
+	for _, field := range sortFields {
+		// Iterate over sort directions
+		for _, direction := range []string{"ASC", "DESC"} {
+			order := &racing.ListRacesRequestOrderParam{
+				Field:     &field,
+				Direction: &direction,
+			}
+
+			listRacesRequest := &racing.ListRacesRequest{Order: order}
+			listRacesResponse, err := racingService.ListRaces(nil, listRacesRequest)
+			assert.NoError(t, err)
+			assert.Equalf(t, 100, len(listRacesResponse.Races), "There should be a total of 100 races in DB.")
+
+			// Check if races are sorted correctly based on the field and direction
+			for i := 0; i < len(listRacesResponse.Races)-1; i++ {
+				previousElement := listRacesResponse.Races[i]
+				element := listRacesResponse.Races[i+1]
+				switch field {
+				case "id":
+					if direction == "ASC" {
+						assert.Truef(t, element.Id >= previousElement.Id, "Results are not sorted by id in ascending order")
+					} else {
+						assert.Truef(t, element.Id <= previousElement.Id, "Results are not sorted by id in descending order")
+					}
+				case "meeting_id":
+					if direction == "ASC" {
+						assert.Truef(t, element.MeetingId >= previousElement.MeetingId, "Results are not sorted by meeting_id in ascending order")
+					} else {
+						assert.Truef(t, element.MeetingId <= previousElement.MeetingId, "Results are not sorted by meeting_id in descending order")
+					}
+				case "name":
+					if direction == "ASC" {
+						assert.Truef(t, element.Name >= previousElement.Name, "Results are not sorted by name in ascending order")
+					} else {
+						assert.Truef(t, element.Name <= previousElement.Name, "Results are not sorted by name in descending order")
+					}
+				case "advertised_start_time":
+					if direction == "ASC" {
+						assert.Truef(t, element.AdvertisedStartTime.Nanos >= previousElement.AdvertisedStartTime.Nanos, "Results are not sorted by advertised_start_time in ascending order")
+					} else {
+						assert.Truef(t, element.AdvertisedStartTime.Nanos <= previousElement.AdvertisedStartTime.Nanos, "Results are not sorted by advertised_start_time in descending order")
+					}
+				}
+			}
+		}
+	}
+}
+
+func TestRacingService_SortByDefault(t *testing.T) {
+	racingService := createService(t)
+
+	listRacesRequest := &racing.ListRacesRequest{}
+	listRacesResponse, err := racingService.ListRaces(nil, listRacesRequest)
+	assert.NoError(t, err)
+	assert.Equalf(t, 100, len(listRacesResponse.Races), "There should be a total of 100 races in DB.")
+	
+	// Check if races are sorted by default field (advertised_start_time)
+	for i := 0; i < len(listRacesResponse.Races)-1; i++ {
+		previousElement := listRacesResponse.Races[i]
+		element := listRacesResponse.Races[i+1]
+		assert.Truef(t, element.AdvertisedStartTime.Nanos >= previousElement.AdvertisedStartTime.Nanos, "Results are not sorted by advertised_start_time")
+	}
+}
+
+
 func createService(t *testing.T) Racing {
 	racingDB, err := sql.Open("sqlite3", ":memory:")
 	assert.NoError(t, err)
